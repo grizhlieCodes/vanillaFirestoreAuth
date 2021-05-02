@@ -4,18 +4,34 @@ let userEmailPrint;
 let userIdPrint;
 let tasks = [];
 
-var firebaseConfig = {
-  apiKey: "AIzaSyAKattZxSVNCvHhwXstBQVtFxH6zlcr5ao",
-  authDomain: "vanillajsauth-76afb.firebaseapp.com",
-  projectId: "vanillajsauth-76afb",
-  storageBucket: "vanillajsauth-76afb.appspot.com",
-  messagingSenderId: "804353047242",
-  appId: "1:804353047242:web:7a80f327fb8140b3211233",
-  measurementId: "G-LQ8DP7S3RF"
-};
-
-// Initialize Firebase
-firebase.initializeApp(firebaseConfig);
+(function initialiseFirebase(){
+  var firebaseConfig = {
+    apiKey: "AIzaSyAKattZxSVNCvHhwXstBQVtFxH6zlcr5ao",
+    authDomain: "vanillajsauth-76afb.firebaseapp.com",
+    projectId: "vanillajsauth-76afb",
+    storageBucket: "vanillajsauth-76afb.appspot.com",
+    messagingSenderId: "804353047242",
+    appId: "1:804353047242:web:7a80f327fb8140b3211233",
+    measurementId: "G-LQ8DP7S3RF"
+  };
+  
+  // Initialize Firebase
+  firebase.initializeApp(firebaseConfig);
+  
+  firebase.auth().onAuthStateChanged(firebaseUser => {
+    if (firebaseUser) {
+      userEmailPrint = document.querySelector('#userEmailPrint')
+      userIdPrint = document.querySelector('#userIdPrint')
+      user = firebaseUser
+      userID = user.uid
+      userEmailPrint.textContent = user.email
+      userIdPrint.textContent = userID
+      fetchAllUserTasksAndRender()
+    } else {
+      console.log(' not logged in ')
+    }
+  })
+})()
 
 //Grab necessary elements
 const txtEmail = document.querySelector('#txtEmail');
@@ -35,20 +51,6 @@ const taskList = document.querySelector('.tasks')
 
 
 //When user is logged in/logged out. 
-firebase.auth().onAuthStateChanged(firebaseUser => {
-  if (firebaseUser) {
-    userEmailPrint = document.querySelector('#userEmailPrint')
-    userIdPrint = document.querySelector('#userIdPrint')
-    user = firebaseUser
-    userID = user.uid
-    userEmailPrint.textContent = user.email
-    userIdPrint.textContent = userID
-    fetchAllUserTasksAndRender()
-  } else {
-    console.log(' not logged in ')
-  }
-})
-
 
 function createEventListeners() {
   //Create login
@@ -157,7 +159,6 @@ function resetAllLocalTasks() {
 }
 
 function addFirebaseTasksToLocalTasksArray(objectFromFirebase) {
-  console.log(objectFromFirebase)
   for (const key in objectFromFirebase) {
     tasks = [...tasks, {
       ...objectFromFirebase[key],
